@@ -1,0 +1,1 @@
+C:\Windows\System32\cmd.exe /K " node app.js &stopsd"

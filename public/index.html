@@ -1,0 +1,198 @@
+<html>
+
+<head>
+    <title>Chat application with Node and Sockets</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://localhost/hospital/chat/3/public/socket.io-stream.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script>
+        var name,
+        socket = io.connect("http://localhost:8080");
+		
+		$(function () {
+            
+			
+			name="allamovech";
+            //When send button is clicked on, send the message to server
+            $("#send").click(function () {
+                //send to the server with person name and message
+                socket.emit("send",1,$("#msg").val());
+            });
+			
+			$("#send2").click(function () {
+                //send to the server with person name and message
+                socket.emit("send",2,$("#msg").val(),true);
+            
+			});
+			
+			 //When send button is clicked on, send the message to server
+            $("#login").click(function () {
+                //send to the server with person name and message
+                socket.emit("login", {
+                   "username": $("#username").val(),
+					"password": 'password',
+					"uuid": '1',
+					"platform": '2',
+					"version": '3',
+					"device_name": '4'
+						
+                });
+            });
+			
+			
+			 //When send button is clicked on, send the message to server
+            $("#logout").click(function () {
+                //send to the server with person name and message
+                socket.emit("logout", {
+                    "name": name,
+                    "msg": $("#msg").val()
+                });
+            });
+			
+			
+			 //When send button is clicked on, send the message to server
+            $("#news").click(function () {
+                socket.emit("news");
+            });
+			
+			 //When send button is clicked on, send the message to server
+            $("#departments").click(function () {
+                 socket.emit("departments");
+            });
+			
+			 //When send button is clicked on, send the message to server
+            $("#rooms").click(function () {
+                 socket.emit("rooms");
+            });
+			
+			 //When send button is clicked on, send the message to server
+            $("#contacts").click(function () {
+                 socket.emit("contacts");
+            });
+			
+			$("#msg").on("keyup", function (event) {socket.emit("typing",2);});
+			
+			socket.on("login", function (data) {
+               	if("error" in data)
+				 	alert(data.error);
+				 else
+				 	$("#msgBox").append("<strong> welcome:" + data.fullname+"<br/>");
+			});
+			
+			
+			socket.on("userLogin", function (id) {
+               	$("#msgBox").append("The user #:" + id+" has been login<br/>");
+			});
+			socket.on("userLogout", function (id) {
+               	$("#msgBox").append("The user #:" + id+" has been logout<br/>");
+			});
+			
+			
+			socket.on("typing", function (id,room_id) {
+				
+				$("#status").html("The user #"+id + " is typing");
+                setTimeout(function () {
+                    $("#status").html('');
+                }, 3000);
+            });
+			
+			//After sending message to the server, we'll have to wire up the event for it.
+            //We can do the following. Upon recievin the message print it to the message box
+            //that we've created in our html
+            socket.on("serverMsg", function (data) {
+                //Append the message from the server to the message box
+                $("#msgBox").append("<strong>" + data.name + "</strong>: " + data.msg + "<br/>");
+				$("#status").html('');
+            });
+			
+			
+			socket.on("custome_error", function (data) {
+				
+				$("#msgBox").append("<strong>"+data.msg+"</strong>");
+				
+            });
+			
+			
+			
+			socket.on("disconnect", function (data) {
+                $("#msgBox").append("<strong>You Are disconnected from the server</strong>");
+			});
+			
+			
+			socket.on("connect", function (data) {
+                 
+				  $("#container").show();
+				  $("#msgBox").append("<strong>welcome</strong>");
+				 
+			});
+			
+			
+			
+			 $('#file').change(function(e) {
+				var file = e.target.files[0];
+				var stream = ss.createStream();
+			
+				// upload a file to the server.
+				ss(socket).emit('profile-image', stream, {size: file.size,name:"foo.jpg"});
+				ss.createBlobReadStream(file).pipe(stream);
+				
+				var blobStream = ss.createBlobReadStream(file);
+					var size = 0;
+					
+					blobStream.on('data', function(chunk) {
+					  size += chunk.length;
+					  console.log(Math.floor(size / file.size * 100) + '%');
+					  // e.g. '42%'
+					});
+					
+					blobStream.pipe(stream);
+
+				
+				
+			  });
+  
+			
+			
+			
+        });
+    </script>
+</head>
+
+<body>
+    
+    
+    <select id="username">
+    	<option>Administrator</option>
+        <option>fooo</option>
+        <option>allamovech</option>
+        
+    </select>
+    <div id="container" style="display:none">
+    <!--Message box: To show the sent/recieved messages-->
+    <div style="height: 200px; width: 400px; border: 1px solid blue;">
+	 <div id="msgBox" ></div>
+     <div id="status" style="color:#930"></div>
+    </div>
+    
+    
+    <input type="file" id="file" />
+    
+    
+    <input type="button" value="login" id="login" >
+    <input type="button" value="logout" id="logout" >
+    
+    <input type="button" value="news" id="news" >
+    <input type="button" value="departments" id="departments" >
+    <input type="button" value="rooms" id="rooms" >
+    <input type="button" value="contacts" id="contacts" >
+    
+    <!--Textbox: to enter the message text-->
+    <input type="text" id="msg" style="width:300px" />
+    <!--Send: A button to send the message to others-->
+    
+    <input type="submit" id="send" value="send to user" />
+    <input type="submit" id="send2" value="send to room" />
+    </div>
+</body>
+
+</html>

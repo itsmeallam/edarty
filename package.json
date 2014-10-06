@@ -1,0 +1,12 @@
+{
+  "name": "Edarty-App",
+  "version": "1.0.0",
+  "description": "Mobile application for makka hospital",
+  "main": "app.js",
+  "author": "mahmoud allam",
+  "license": "MIT",
+  "dependencies" : {
+    "socket.io" : "~1.1.0",
+	"socket.io-events":"~0.4.2"
+  }
+}
